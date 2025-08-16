@@ -52,6 +52,15 @@
 			height: 50px;
 		}
 
+		#location {
+			font-size: 15px;
+			background-color: green;
+			padding: 10px;
+			color: white;
+			font-weight: bold;
+			border-radius: 10px;
+		}
+
 		.location {
 			display: flex;
 			justify-content: space-between;
@@ -116,12 +125,22 @@
 
 		.now-tag {
 			background: #ffaa00;
+			color: black;
 			padding: 2px 8px;
 			border-radius: 8px;
-			color: black;
 			font-size: 12px;
 			margin-left: 8px;
 		}
+
+		.finished-tag {
+			color: black;
+			background: gray;
+			padding: 2px 8px;
+			border-radius: 8px;
+			font-size: 12px;
+			margin-left: 8px;
+		}
+
 
 		.progress-section {
 			margin-top: 3px;
@@ -185,10 +204,10 @@
 
 		.secondary {
 			position: absolute;
-			/*
-			margin-top: 3px;
-			margin-left: 2px;
-*/
+
+			margin-top: 1px;
+			margin-left: 5px;
+
 			cursor: pointer;
 		}
 
@@ -213,6 +232,11 @@
 			gap: 8px;
 			align-items: center;
 			font-size: 15px;
+			background-color: springgreen;
+			padding: 10px;
+			color: blue;
+			font-weight: bold;
+			border-radius: 10px;
 		}
 
 		#weather-icon {
@@ -462,29 +486,27 @@
 					}
 				];
 
-				// Render prayers
 				const prayerList = $('prayer-list');
 				prayerList.innerHTML = '';
-				const now = new Date();
-				const nowTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
-				let nextPrayer = null;
-				let currentPrayer = null;
 
+				const now = new Date();
+				const nowTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+					now.getHours(), now.getMinutes(), now.getSeconds());
+
+				todayPrayerTimes = []; // reset
+
+				// Build prayer times array
 				for (const prayer of prayerOrder) {
 					let timeStr24;
 					if (prayer.derived && prayer.key === 'Ishraq') {
-						// derived from Sunrise + afterMinutes
-						const sunriseRaw = timings['Sunrise'].split(' ')[0]; // "HH:MM"
+						const sunriseRaw = timings['Sunrise'].split(' ')[0]; // HH:MM
 						const [sh, sm] = sunriseRaw.split(':').map(Number);
 						const total = sh * 60 + sm + (prayer.afterMinutes || 15);
 						const ih = Math.floor(total / 60) % 24;
 						const im = total % 60;
 						timeStr24 = `${String(ih).padStart(2,'0')}:${String(im).padStart(2,'0')}:00`;
 					} else {
-						if (!timings[prayer.key]) {
-							// fallback: skip if no timing
-							continue;
-						}
+						if (!timings[prayer.key]) continue;
 						timeStr24 = timings[prayer.key].split(' ')[0];
 						if (timeStr24.length === 5) timeStr24 += ':00';
 					}
@@ -496,35 +518,55 @@
 						time: prayerTime,
 						timeStr24
 					});
+				}
 
-					if (nowTime < prayerTime && !nextPrayer) nextPrayer = {
-						...prayer,
-						time: prayerTime,
-						timeStr24
-					};
-					if (nowTime >= prayerTime) currentPrayer = {
-						...prayer,
-						time: prayerTime,
-						timeStr24
-					};
+				// 🔹 Render list with NOW & FINISHED logic
+				let currentPrayer = null;
 
-					const isNow = currentPrayer && currentPrayer.key === prayer.key && (!nextPrayer || nowTime < nextPrayer.time);
+				for (let i = 0; i < todayPrayerTimes.length; i++) {
+					const prayer = todayPrayerTimes[i];
+					const nextPrayer = todayPrayerTimes[i + 1]; // look ahead
+
+					let isNow = false;
+					let isFinished = false;
+
+					if (nowTime >= prayer.time) {
+						if (!nextPrayer || nowTime < nextPrayer.time) {
+							// Between this and next prayer → NOW
+							isNow = true;
+							currentPrayer = prayer;
+						} else {
+							// Past this prayer and next one already started → FINISHED
+							isFinished = true;
+						}
+					}
+
 					const item = document.createElement('div');
 					item.className = 'prayer-item';
-					item.innerHTML = `<div>${prayer.name}${isNow?'<span class="now-tag">Now</span>':''}</div><div>${formatTime12h(timeStr24)}</div>`;
+					item.innerHTML = `
+        <div>
+          ${prayer.name}
+          ${isNow ? '<span class="now-tag">Now</span>' : ''}
+          ${isFinished ? '<span class="finished-tag">Finished</span>' : ''}
+        </div>
+        <div>${formatTime12h(prayer.timeStr24)}</div>
+      `;
+
 					prayerList.appendChild(item);
 				}
 
-				$('current-prayer').innerHTML = currentPrayer ? `${currentPrayer.name}<br><span style="font-size:0.9em">${formatTime12h(currentPrayer.timeStr24)}</span>` : '--';
+				// 🔹 Update current-prayer display
+				$('current-prayer').innerHTML = currentPrayer ?
+					`${currentPrayer.name}<br><span style="font-size:0.9em">${formatTime12h(currentPrayer.timeStr24)}</span>` :
+					'--';
 
-				// After we load prayer times also fetch weather (for same coords)
+				// Fetch weather too
 				fetchWeather(lat, lon);
 
 			} catch (err) {
 				console.error('fetchPrayerTimes error', err);
 			}
 		}
-
 		/* Calendar UI */
 		function showWeek() {
 			switchTab('Bi-Weekly');
