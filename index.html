@@ -631,7 +631,7 @@
 
 					const plainName = nextPrayer.name.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
 					$('next-prayer-countdown').textContent =
-						`${plainName} in ${hours.toString().padStart(2,'0')} h ${minutes.toString().padStart(2,'0')} m`;
+						`${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 				} else {
 					nextPrayerDisplay.textContent = 'No more prayers today';
 					$('next-prayer-countdown').textContent = '--:--:--';
@@ -719,7 +719,7 @@
 				const diff = now - p.time; // milliseconds
 
 				// Trigger Azan if it's the exact prayer time within the first 59 seconds
-				if (diff >= 0 && diff < 59000 && azanPlayedFor !== p.key) {
+				if (diff >= 0 && diff < 19000 && azanPlayedFor !== p.key) {
 					audio.currentTime = 0;
 					audio.play().catch(err => {
 						console.warn('Audio play blocked. User interaction needed:', err);
