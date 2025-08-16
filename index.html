@@ -39,22 +39,38 @@
 		}
 
 		.date-box {
-
-			/*
-			display: inline-flex;
+			display: flex;
+			flex-direction: column;
+			/* stack vertically */
 			justify-content: center;
 			align-items: center;
+			gap: 6px;
 
-			gap: 10px;
-*/
-			padding: 10px;
-			font-size: 35px;
-			font-weight: bold;
-			/*			background-color: brown;*/
-			color: yellow;
-			height: auto;
-			/*			padding: 20px;*/
+			padding: 16px 20px;
+			border-radius: 16px;
+			background: linear-gradient(145deg, #222, #333);
+			/* dark gradient */
+			color: #f9f9f9;
 			text-align: center;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+			max-width: 280px;
+			margin: 2px auto;
+		}
+
+		#gregorian-date {
+			font-size: 1.6rem;
+			font-weight: 600;
+			color: #ffda6b;
+			/* warm gold for highlight */
+			letter-spacing: 0.5px;
+		}
+
+		#hijri-date {
+			font-size: 1.2rem;
+			font-weight: 400;
+			color: #b0e0ff;
+			/* soft bluish contrast */
+			opacity: 0.9;
 		}
 
 		#location {
@@ -291,7 +307,6 @@
 					<div id="gregorian-date">Today</div>
 					<div id="hijri-date">Hijri Date</div>
 				</div>
-
 			</div>
 
 
@@ -456,9 +471,25 @@
 				const today = json.data[day - 1];
 				const timings = today.timings;
 				const hijri = today.date.hijri;
-				const readable = today.date.readable;
 
-				$('gregorian-date').textContent = `${readable}`;
+				// Format Gregorian date nicely
+				const dateObj = new Date(selectedDate);
+				const options = {
+					weekday: 'short',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric'
+				};
+				const formattedDate = dateObj.toLocaleDateString('en-US', options);
+
+
+				// Example output: Saturday, August 16, 2025
+				$('gregorian-date').textContent = formattedDate;
+
+				// Hijri (from API)
+				$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
+
+
 				$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
 
 				// prayer order (Ishraq derived)
