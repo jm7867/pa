@@ -70,7 +70,7 @@
 			border-radius: 16px;
 			margin-top: 10px;
 			display: flex;
-			justify-content: space-between;
+			justify-content: jus;
 			gap: 20px;
 			flex-wrap: wrap;
 		}
@@ -204,7 +204,6 @@
 
 		.calendar-day.active {
 			background: white;
-			text-align: center;
 			color: black;
 			font-weight: bold;
 		}
@@ -528,7 +527,7 @@
 
 		/* Calendar UI */
 		function showWeek() {
-			switchTab('Week');
+			switchTab('Bi-Weekly');
 			const calendar = $('calendar');
 			calendar.innerHTML = '';
 			const now = new Date();
