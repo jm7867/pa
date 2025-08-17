@@ -631,7 +631,7 @@
 
 					const plainName = nextPrayer.name.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
 					$('next-prayer-countdown').textContent =
-						`${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+						`${plainName} in ${hours.toString().padStart(2,'0')} h ${minutes.toString().padStart(2,'0')} m`;
 				} else {
 					nextPrayerDisplay.textContent = 'No more prayers today';
 					$('next-prayer-countdown').textContent = '--:--:--';
