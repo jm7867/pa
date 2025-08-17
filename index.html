@@ -317,6 +317,7 @@
 					<!--					<div id="next-prayer"></div>-->
 					<br>
 					<div id="next-prayer-countdown"></div>
+
 				</div>
 			</div>
 
@@ -626,7 +627,8 @@
 				// 🔹 After rendering prayer list and current prayer
 				let nextPrayer = todayPrayerTimes.find(p => p.time > nowTime);
 
-				const nextPrayerDisplay = $('next-prayer'); // make sure you have <div id="next-prayer"></div>
+				const nextPrayerDisplay = $('next-prayer'); // <div id="next-prayer"></div>
+				const countdownEl = $('next-prayer-countdown'); // <div id="next-prayer-countdown"></div>
 
 				if (nextPrayer) {
 					const now = new Date();
@@ -638,12 +640,19 @@
 					const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
 					const plainName = nextPrayer.name.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
-					$('next-prayer-countdown').textContent =
-						`${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+
+					if (countdownEl) {
+						countdownEl.textContent = `${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+					}
 				} else {
-					nextPrayerDisplay.textContent = 'No more prayers today';
-					$('next-prayer-countdown').textContent = '--:--:--';
+					if (nextPrayerDisplay) {
+						nextPrayerDisplay.textContent = 'No more prayers today';
+					}
+					if (countdownEl) {
+						countdownEl.textContent = 'No more prayers today';
+					}
 				}
+
 
 
 				// Fetch weather too
