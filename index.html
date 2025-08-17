@@ -15,7 +15,7 @@
 			color: white;
 			position: relative;
 			overflow-x: hidden;
-			font-variant: small-caps;
+
 
 		}
 
@@ -104,6 +104,7 @@
 			display: flex;
 			justify-content: jus;
 			gap: 20px;
+			font-variant: small-caps;
 			flex-wrap: wrap;
 		}
 
@@ -144,7 +145,7 @@
 			border-radius: 12px;
 			width: calc(50% - 6px);
 			box-sizing: border-box;
-			font-size: 26px;
+			font-size: 24px;
 			font-variant: small-caps;
 
 		}
@@ -155,7 +156,7 @@
 			padding: 2px 8px;
 			border-radius: 8px;
 			font-size: 12px;
-			margin-left: 8px;
+			margin-left: 0px;
 		}
 
 		.finished-tag {
@@ -164,12 +165,13 @@
 			padding: 2px 8px;
 			border-radius: 8px;
 			font-size: 12px;
-			margin-left: 8px;
+			margin-left: 0px;
 		}
 
 
 		.progress-section {
 			margin-top: 3px;
+
 		}
 
 		.tabs {
@@ -187,6 +189,7 @@
 			border-radius: 20px;
 			cursor: pointer;
 			font-size: 16px;
+			font-variant: small-caps;
 		}
 
 		.tabs .active {
@@ -204,10 +207,10 @@
 		.calendar-day {
 			width: 45px;
 			text-align: center;
-			font-size: 14px;
+			font-size: 20px;
 			position: relative;
 			left: 10%;
-			top: 30px;
+			top: 50px;
 			/* optional: vertical center */
 			transform: translate(-50%, -50%);
 			/* offset half width & height */
@@ -605,8 +608,8 @@
 					item.innerHTML = `
         <div>
           ${prayer.name}
-          ${isNow ? '<span class="now-tag">Now</span>' : ''}
-          ${isFinished ? '<span class="finished-tag">End</span>' : ''}
+          ${isNow ? '<br><span class="now-tag">Now</span>' : ''}
+          ${isFinished ? '<br><span class="finished-tag">End</span>' : ''}
         </div>
         <div>${formatTime12h(prayer.timeStr24)}</div>
       `;
@@ -771,9 +774,16 @@
 			const now = new Date();
 			if (userCoords) {
 				fetchPrayerTimes(now);
-				fetchWeather(userCoords.latitude, userCoords.longitude);
 			}
 		}, 1000);
+
+		// Auto-refresh data every 60 seconds
+		setInterval(() => {
+			const now = new Date();
+			if (userCoords) {
+				fetchWeather(userCoords.latitude, userCoords.longitude);
+			}
+		}, 60000);
 
 	</script>
 </body>
