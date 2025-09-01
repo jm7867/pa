@@ -105,7 +105,7 @@
 			margin-top: 10px;
 			display: flex;
 			justify-content: jus;
-			gap: 20px;
+			/*			gap: 20px;*/
 			font-variant: small-caps;
 			flex-wrap: wrap;
 		}
@@ -123,7 +123,7 @@
 		}
 
 		#digital-clock {
-			font-size: 50px;
+			font-size: 70px;
 			font-weight: bold;
 			color: white;
 			line-height: 1.2;
@@ -396,7 +396,7 @@
 			const ampm = hours >= 12 ? 'PM' : 'AM';
 			hours = hours % 12 || 12;
 			const timeStr = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-			$('digital-clock').innerHTML = `${timeStr}<br><span style="font-size:30px">${ampm}</span>`;
+			$('digital-clock').innerHTML = `${timeStr}<br><span style="font-size:40px">${ampm}</span>`;
 		}
 		setInterval(updateDigitalClock, 1000);
 		updateDigitalClock();
