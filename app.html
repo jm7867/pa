@@ -5,6 +5,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Prayer Times App</title>
+
 	<style>
 		body {
 			margin: 0;
@@ -169,6 +170,9 @@
 		}
 
 	</style>
+
+	<link href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap&subset=latin-ext" rel="stylesheet" />
+	<link rel="stylesheet" href="css/main.css" />
 </head>
 
 <body>
@@ -178,7 +182,7 @@
 			<h3 id="hijri-date" style="float: right;">Hijri Date</h3>
 		</div>
 		<div class="location"> <span id="location">📍 Getting location...</span> <span>✔️ Islamic Centre</span> </div>
-		<div class="card">
+		<div class="card" style="height: 150px;">
 			<div class="card-section" style="text-align: left;"> <strong>Now</strong>
 				<h2 id="current-prayer">--</h2>
 			</div>
@@ -195,6 +199,51 @@
 			</div>
 			<div class="cal_main">
 				<div class="calendar" id="calendar"></div>
+				<br>
+				<div class="wrapper" id="app" style="padding-left:0px;">
+					<div class="player">
+						<div class="player__top">
+
+							<div class="player-controls">
+
+
+
+								<!-- Previous Track -->
+								<div class="player-controls__item" @click="prevTrack">
+									⏮️
+								</div>
+								<!-- Play/Pause -->
+								<div class="player-controls__item -xl js-play" @click="play">
+									{{ isTimerPlaying ? '⏸️' : '▶️' }}
+								</div>
+
+								<!-- Next Track -->
+								<div class="player-controls__item" @click="nextTrack">
+									⏭️
+								</div>
+
+							</div>
+						</div>
+
+						<div class="progress" ref="progress">
+							<div class="progress__top">
+								<div class="album-info" v-if="currentTrack">
+									<span class="album-info__name">{{ currentTrack.artist }}</span> |
+									<span class="album-info__track">{{ currentTrack.name }}</span> |
+									<span class="progress__duration">{{ duration }}</span>
+								</div>
+								<div class="progress__bar" @click="clickProgress">
+									<div class="progress__current" :style="{ width : barWidth }"></div>
+								</div>
+								<div class="progress__time">{{ currentTime }}</div>
+							</div>
+							<div v-cloak></div>
+						</div>
+
+					</div>
+
+
+				</div>
 			</div>
 		</div>
 	</div>
@@ -362,6 +411,7 @@
 		function showWeek() {
 			switchTab("Week");
 			const calendar = document.getElementById("calendar");
+			document.getElementById('app').style.display = 'block';
 			calendar.innerHTML = "";
 			const now = new Date();
 			const start = new Date(now);
@@ -391,6 +441,7 @@
 		function showMonth() {
 			switchTab("Month");
 			const calendar = document.getElementById("calendar");
+			document.getElementById('app').style.display = 'none';
 			calendar.innerHTML = "";
 			const now = new Date();
 			const year = now.getFullYear();
@@ -472,7 +523,8 @@
 		})();
 
 	</script>
-	<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"968a21a053444bf891f099f064bf5b1f","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+	<script src="./scripts/script.js"></script>
 </body>
 
 </html>

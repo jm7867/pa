@@ -1,11 +1,14 @@
+/*
 body {
-  background: #3f51b5;;
-  font-family: "Bitter", serif;
-    height: 100vh;
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
+	background: #3f51b5;
+	;
+	font-family: "Bitter", serif;
+	height: 100vh;
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
 }
+*/
 
 * {
   box-sizing: border-box;
@@ -40,7 +43,7 @@ body {
 }
 
 .player {
-  background: #eef3f7;
+  background: #0b3c33;
 /*
   width: 410px;
   min-height: 480px;
@@ -49,6 +52,7 @@ body {
 */
   padding: 10px;
 	border-radius: 10px;
+	box-shadow: 0px 0px 5px 0px black; 
 }
 @media screen and (max-width: 576px), (max-height: 500px) {
   .player {
@@ -159,7 +163,7 @@ body {
 .player-controls__item {
   display: inline-flex;
   font-size: 30px;
-  padding: 5px;
+  padding: 2px;
   margin-bottom: 30px;
   color: #009688;
   cursor: pointer;
@@ -169,8 +173,8 @@ body {
   justify-content: center;
   position: relative;
   transition: all 0.3s ease-in-out;
-		background-color: rgb(0,0,0,0.5);
-	border-radius: 100%;
+background-color: rgb(10,0,10,0.5);
+border-radius: 10px;
 }
 @media screen and (max-width: 576px), (max-height: 500px) {
   .player-controls__item {
@@ -262,14 +266,16 @@ body {
 */
 }
 .progress__duration {
-  color: brown;
-  font-weight: 700;
-  font-size: 20px;
+ font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  line-height: 1.3em;
 /*  opacity: 0.5;*/
 }
 .progress__time {
   margin-top: 2px;
-  color: brown;
+  color: ghostwhite;
+	text-align: right;
   font-weight: 700;
   font-size: 16px;
   opacity: 0.7;
@@ -279,9 +285,10 @@ body {
   height: 6px;
   width: 100%;
   cursor: pointer;
-  background-color: #d0d8e6;
+  background-color:yellow;
   display: inline-block;
   border-radius: 10px;
+	box-shadow: 0px 0px 10px 0px black; 
 }
 
 .progress__current {
@@ -292,10 +299,11 @@ body {
 }
 
 .album-info {
-  color: #71829e;
+  color: white;
   flex: 1;
 /*  padding-right: 60px;*/
   user-select: none;
+	text-align: center;
 }
 @media screen and (max-width: 576px), (max-height: 500px) {
   .album-info {
@@ -307,7 +315,7 @@ body {
   font-weight: bold;
   margin-bottom: 12px;
   line-height: 1.3em;
-    color: #ff5722;
+/*    color: #ff5722;*/
 }
 @media screen and (max-width: 576px), (max-height: 500px) {
   .album-info__name {
@@ -321,7 +329,7 @@ body {
   opacity: 0.8;
   line-height: 1.3em;
   min-height: 52px;
-    color: #ff5722;
+/*    color: #ff5722;*/
 }
 @media screen and (max-width: 576px), (max-height: 500px) {
   .album-info__track {
