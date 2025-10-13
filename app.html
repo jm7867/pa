@@ -182,7 +182,14 @@
 			<h3 id="gregorian-date" style="float: left;">Today</h3> |
 			<h3 id="hijri-date" style="float: right;">Hijri Date</h3>
 		</div>
-		<div class="location"> <span id="location">📍 Getting location...</span> <span>✔️ Hanafi - Islamic Centre</span> </div>
+		<!--		<div class="location"> <span id="location">📍 Getting location...</span> <span>✔️ Hanafi - Islamic Centre</span> </div>-->
+		<div class="location">
+			<span id="location">📍 Getting location...</span>
+			<button id="change-location" style="background:#083e34;color:white;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">
+				Change Location
+			</button>
+		</div>
+
 		<div class="card" style="height: 150px;">
 			<div class="card-section" style="text-align: left;"> <strong>Now</strong>
 				<h2 id="current-prayer">--</h2>
@@ -487,19 +494,62 @@
 				if (btn.textContent === tab) btn.classList.add("active");
 			});
 		}
-		// Initial load
-		navigator.geolocation.getCurrentPosition(async (pos) => {
-			userCoords = pos.coords;
+		//		// Initial load
+		//		navigator.geolocation.getCurrentPosition(async (pos) => {
+		//			userCoords = pos.coords;
+		//			try {
+		//				const locRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userCoords.latitude}&lon=${userCoords.longitude}`);
+		//				const locData = await locRes.json();
+		//				document.getElementById("location").textContent = `📍 ${locData.address.city || locData.address.town || locData.address.village || 'Your Location'}`;
+		//			} catch (e) {
+		//				document.getElementById("location").textContent = "📍 Location Unavailable";
+		//			}
+		//			fetchPrayerTimes();
+		//		});
+		//		showWeek();
+
+		// --- Location handling with localStorage ---
+		const savedLocation = localStorage.getItem("userCoords");
+
+		if (savedLocation) {
+			// Use saved coordinates directly
+			userCoords = JSON.parse(savedLocation);
+			displayLocation(userCoords);
+			fetchPrayerTimes();
+		} else {
+			// Ask for location permission
+			navigator.geolocation.getCurrentPosition(async (pos) => {
+				userCoords = pos.coords;
+
+				// Save coordinates for next time
+				localStorage.setItem("userCoords", JSON.stringify(userCoords));
+
+				displayLocation(userCoords);
+				fetchPrayerTimes();
+			}, (err) => {
+				alert("Location access denied. Please enable location or click Change Location to try again.");
+			});
+		}
+
+		async function displayLocation(coords) {
 			try {
-				const locRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userCoords.latitude}&lon=${userCoords.longitude}`);
+				const locRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.latitude}&lon=${coords.longitude}`);
 				const locData = await locRes.json();
-				document.getElementById("location").textContent = `📍 ${locData.address.city || locData.address.town || locData.address.village || 'Your Location'}`;
+				document.getElementById("location").textContent =
+					`📍 ${locData.address.city || locData.address.town || locData.address.village || 'Your Location'}`;
 			} catch (e) {
 				document.getElementById("location").textContent = "📍 Location Unavailable";
 			}
-			fetchPrayerTimes();
+		}
+
+		// Allow user to clear saved location
+		document.getElementById("change-location").addEventListener("click", () => {
+			localStorage.removeItem("userCoords");
+			alert("Location reset! Please allow access again.");
+			location.reload();
 		});
-		showWeek();
+
+		showWeek(); // Keep your calendar working
 
 	</script>
 	<script>
