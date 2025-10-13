@@ -147,6 +147,7 @@
 			color: black;
 			padding: 1px;
 			border-radius: 10px;
+
 		}
 
 		#digital-clock {
@@ -181,7 +182,7 @@
 			<h3 id="gregorian-date" style="float: left;">Today</h3> |
 			<h3 id="hijri-date" style="float: right;">Hijri Date</h3>
 		</div>
-		<div class="location"> <span id="location">📍 Getting location...</span> <span>✔️ Islamic Centre</span> </div>
+		<div class="location"> <span id="location">📍 Getting location...</span> <span>✔️ Hanafi - Islamic Centre</span> </div>
 		<div class="card" style="height: 150px;">
 			<div class="card-section" style="text-align: left;"> <strong>Now</strong>
 				<h2 id="current-prayer">--</h2>
@@ -296,12 +297,22 @@
 			try {
 				const res = await fetch(url);
 				const data = await res.json();
+
+				// Get today's prayer data
 				const today = data.data[day - 1];
 				const timings = today.timings;
 				const hijriDate = today.date.hijri;
-				const readableDate = today.date.readable;
 
-				document.getElementById('gregorian-date').textContent = `Today, ${readableDate}`;
+				// Get day name (short version)
+				const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+				const d = new Date();
+				const dayName = weekday[d.getDay()];
+
+				// Combine with readable date
+				const readableDate = `${dayName}, ${today.date.readable}`;
+
+				document.getElementById('gregorian-date').textContent = readableDate;
+
 				document.getElementById('hijri-date').textContent = `${hijriDate.day} ${hijriDate.month.en} ${hijriDate.year}`;
 
 				const prayerOrder = [{
