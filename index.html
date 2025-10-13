@@ -267,6 +267,10 @@
 			color: yellow;
 		}
 
+		div {
+			font-size: ;
+		}
+
 		#weather {
 			display: flex;
 			gap: 8px;
@@ -283,6 +287,10 @@
 			width: 36px;
 			height: 36px;
 			display: inline-block;
+		}
+
+		.test_2 {
+			font-size: 250px;
 		}
 
 		@media (max-width: 600px) {
@@ -493,6 +501,8 @@
 				try {
 					// Request temperature in Fahrenheit
 					const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&temperature_unit=fahrenheit`;
+					console.log("Fetching prayer times from:", url); // 🔍 log the URL
+
 					const res = await fetch(url);
 					const data = await res.json();
 
@@ -655,7 +665,7 @@
 						item.className = 'prayer-item';
 						item.innerHTML = `
         <div>
-          ${prayer.name}
+          ${prayer.name} 
           ${isNow ? '<br><span class="now-tag">Now</span>' : ''}
           ${isFinished ? '<br><span class="finished-tag">End</span>' : ''}
         </div>
@@ -846,6 +856,7 @@
 
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
 		<script src="./scripts/script.js"></script>
+	</div>
 </body>
 
 </html>
