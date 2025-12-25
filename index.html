@@ -52,7 +52,7 @@
 			align-items: center;
 			gap: 6px;
 
-			padding: 16px 20px;
+			padding: 10px;
 			border-radius: 16px;
 			background: linear-gradient(145deg, #222, #333);
 			/* dark gradient */
@@ -83,16 +83,18 @@
 			font-size: 15px;
 			background-color: green;
 			padding: 10px;
+			margin-right: 10px;
 			color: white;
 			font-weight: bold;
 			border-radius: 10px;
+			width: 170px;
 		}
 
 		.location {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin: 10px 0;
+			margin: 1px;
 			font-size: 16px;
 		}
 
@@ -239,7 +241,7 @@
 			position: absolute;
 			font-size: 28px;
 			font-weight: bold;
-			margin-top: -5px;
+			margin-top: 1px;
 			margin-left: 5px;
 			color: white;
 			cursor: pointer;
@@ -278,6 +280,7 @@
 			font-size: 15px;
 			background-color: black;
 			padding: 10px;
+			margin-left: 10px;
 			color: gainsboro;
 			font-weight: bold;
 			border-radius: 10px;
@@ -311,15 +314,6 @@
 <body>
 	<div class="container">
 
-		<div class="location">
-			<span id="location">📍 Getting location...</span> <span id="refresh-btn" class="btn secondary">⟳</span>
-			<div id="weather">
-				<img id="weather-icon" src="" alt="" style="display:none" />
-				<div id="weather-temp">--</div>
-				<div id="weather-wind">--</div>
-			</div>
-		</div>
-
 		<div class="card">
 			<div class="card-section">
 				<strong>Now</strong> <span id="mute-btn" class="btn">🔊</span>
@@ -337,7 +331,16 @@
 				<div class="date-box">
 					<div id="gregorian-date">Today</div>
 					<div id="hijri-date">Hijri Date</div>
+					<div class="location">
+						<span id="location">📍 Getting location...</span> <span id="refresh-btn" class="btn secondary">⟳</span>
+						<div id="weather">
+							<img id="weather-icon" src="" alt="" style="display:none" />
+							<div id="weather-temp">--</div>
+							<div id="weather-wind">--</div>
+						</div>
+					</div>
 				</div>
+
 			</div>
 
 
@@ -499,30 +502,19 @@
 
 			async function fetchWeather(lat, lon) {
 				try {
-					// Request temperature in Fahrenheit
-					const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&temperature_unit=fahrenheit`;
-					console.log("Fetching prayer times from:", url); // 🔍 log the URL
-
+					const url =
+						`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&temperature_unit=fahrenheit`;
 					const res = await fetch(url);
 					const data = await res.json();
 
-					if (data && data.current) {
-						const temp = data.current.temperature_2m;
-						const wind = data.current.wind_speed_10m;
-						$('weather-temp').textContent = `🌡 ${temp}°F`;
-						$('weather-wind').textContent = `💨 ${wind} km/h`;
-						$('weather-icon').style.display = 'none';
-					} else {
-						$('weather-temp').textContent = '--';
-						$('weather-wind').textContent = '--';
-						console.warn('Weather response missing current', data);
-					}
-				} catch (err) {
-					console.error('fetchWeather error', err);
+					$('weather-temp').textContent = `🌡 ${data.current.temperature_2m}°F`;
+					$('weather-wind').textContent = `💨 ${data.current.wind_speed_10m} km/h`;
+				} catch {
 					$('weather-temp').textContent = '--';
 					$('weather-wind').textContent = '--';
 				}
 			}
+
 
 			/* Main: fetch prayer times from Aladhan & render */
 			async function fetchPrayerTimes(selectedDate = new Date()) {
@@ -842,7 +834,7 @@
 				if (userCoords) {
 					fetchPrayerTimes(now);
 				}
-			}, 1000);
+			}, 300000);
 
 			// Auto-refresh data every 60 seconds
 			setInterval(() => {
