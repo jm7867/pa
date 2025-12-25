@@ -95,7 +95,7 @@
 			justify-content: space-between;
 			align-items: center;
 			margin: 1px;
-			font-size: 16px;
+			/*			font-size: 16px;*/
 		}
 
 		h3 {
@@ -108,8 +108,8 @@
 			border-radius: 16px;
 			margin-top: 10px;
 			display: flex;
-			justify-content: jus;
-			/*			gap: 20px;*/
+			justify-content: center;
+			/*			gap: 20px;
 			/*			font-variant: small-caps;*/
 			flex-wrap: wrap;
 		}
@@ -241,7 +241,7 @@
 			position: absolute;
 			font-size: 28px;
 			font-weight: bold;
-			margin-top: 1px;
+			margin-top: -10px;
 			margin-left: 5px;
 			color: white;
 			cursor: pointer;
@@ -274,8 +274,10 @@
 		}
 
 		#weather {
+/*
 			display: flex;
 			gap: 8px;
+*/
 			align-items: center;
 			font-size: 13px;
 			background-color: black;
@@ -549,7 +551,13 @@
 						month: 'long',
 						day: 'numeric'
 					};
-					const formattedDate = dateObj.toLocaleDateString('en-US', options);
+
+					const formattedDate = dateObj.toLocaleDateString('en-US', {
+						weekday: 'short',
+						month: 'short',
+						day: '2-digit',
+						year: 'numeric'
+					}).replace(',', '');
 
 
 					// Example output: Saturday, August 16, 2025
