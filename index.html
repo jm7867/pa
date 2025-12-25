@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap&subset=latin-ext" rel="stylesheet" />
+	<!--	<link href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap&subset=latin-ext" rel="stylesheet" />-->
 	<link rel="stylesheet" href="css/main.css" />
 	<title>Prayer Times App</title>
 	<style>
@@ -521,6 +521,14 @@
 
 			/* Main: fetch prayer times from Aladhan & render */
 			async function fetchPrayerTimes(selectedDate = new Date()) {
+
+				if (!navigator.onLine) {
+					console.warn('Offline – skipping prayer time fetch');
+					$('current-prayer').textContent = 'Offline';
+					return;
+				}
+
+				if (!userCoords) return;
 				if (!userCoords) return;
 				selectedDateGlobal = selectedDate;
 				// Reset todayPrayerTimes
