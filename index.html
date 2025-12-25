@@ -80,7 +80,7 @@
 		}
 
 		#location {
-			font-size: 15px;
+			font-size: 13px;
 			background-color: green;
 			padding: 10px;
 			margin-right: 10px;
@@ -277,7 +277,7 @@
 			display: flex;
 			gap: 8px;
 			align-items: center;
-			font-size: 15px;
+			font-size: 13px;
 			background-color: black;
 			padding: 10px;
 			margin-left: 10px;
@@ -332,7 +332,7 @@
 					<div id="gregorian-date">Today</div>
 					<div id="hijri-date">Hijri Date</div>
 					<div class="location">
-						<span id="location">📍 Getting location...</span> <span id="refresh-btn" class="btn secondary">⟳</span>
+						<span id="location"> Getting location...</span> <span id="refresh-btn" class="btn secondary">⟳</span>
 						<div id="weather">
 							<img id="weather-icon" src="" alt="" style="display:none" />
 							<div id="weather-temp">--</div>
@@ -805,15 +805,17 @@
 					const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userCoords.latitude}&lon=${userCoords.longitude}`);
 					const j = await r.json();
 					const place = j.address && (j.address.city || j.address.town || j.address.village || j.address.state) || '';
-					$('location').textContent = `\u00A0\u00A0\u00A0\u00A0📍${place || 'Your Location'}`;
+					$('location').textContent = `\u00A0\u00A0\u00A0\u00A0${place || 'Your Location'}`;
 				} catch (e) {
-					$('location').textContent = '\u00A0\u00A0\u00A0\u00A0📍Location Unavailable';
+					$('location').textContent = '\u00A0\u00A0\u00A0\u00A0Location Unavailable';
 				}
 				// fetch weather and prayers
 				fetchPrayerTimes(new Date());
+				fetchWeather(pos.coords.latitude, pos.coords.longitude);
+
 			}, err => {
 				console.error('Geolocation failed', err);
-				$('location').textContent = '📍 Location denied';
+				$('location').textContent = ' Location denied';
 			});
 
 			/* Unlock audio if user interacts with page (helps with autoplay policies) */
