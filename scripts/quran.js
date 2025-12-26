@@ -37,13 +37,16 @@
 	/* ---- Restore saved state ---- */
 	let index = Number(localStorage.getItem("surahIndex")) || 1;
 	let savedTime = Number(localStorage.getItem("time")) || 0;
+	audio_quran.volume = 0.4; // 40%
+	audio_quran.playsInline = true; // required for iOS/Android WebView
+
 
 
 
 	/* ---- Load a Surah by index ---- */
 	function loadTrack(i, autoplay = false) {
 		const num = String(i).padStart(3, "0");
-		audio_quran.src = `./quran/${num}.mp3`;
+		audio_quran.src = `public/quran/${num}.mp3`;
 		surahLabel.textContent = surahList[i - 1] || `Surah ${i}`;
 		audio_quran.load();
 
@@ -111,3 +114,11 @@
 	audio_quran.onended = () => {
 		nextBtn.click();
 	};
+
+	document.addEventListener('click', async function unlockAudio() {
+		try {
+			await audio_quran.play();
+			audio_quran.pause();
+			document.removeEventListener('click', unlockAudio);
+		} catch (e) {}
+	});
