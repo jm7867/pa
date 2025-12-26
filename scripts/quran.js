@@ -41,10 +41,11 @@
 	let savedVolume = Number(localStorage.getItem("volume"));
 
 	if (!isNaN(savedVolume)) {
-		audio_quran.volume = savedVolume;
+		audio.volume = savedVolume;
 		volume.value = savedVolume;
 	} else {
-		volume.value = 1;
+		audio.volume = 0.4; // default 40%
+		volume.value = 0.4;
 	}
 
 	/* ---- Load a Surah by index ---- */
