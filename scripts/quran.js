@@ -32,21 +32,13 @@
 	const prevBtn = document.getElementById("prev");
 	const nextBtn = document.getElementById("next");
 	const progress = document.getElementById("progress");
-	const volume = document.getElementById("volume");
 	const surahLabel = document.getElementById("surah-name");
 
 	/* ---- Restore saved state ---- */
 	let index = Number(localStorage.getItem("surahIndex")) || 1;
 	let savedTime = Number(localStorage.getItem("time")) || 0;
-	let savedVolume = Number(localStorage.getItem("volume"));
 
-	if (!isNaN(savedVolume)) {
-		audio.volume = savedVolume;
-		volume.value = savedVolume;
-	} else {
-		audio.volume = 0.4; // default 40%
-		volume.value = 0.4;
-	}
+
 
 	/* ---- Load a Surah by index ---- */
 	function loadTrack(i, autoplay = false) {
@@ -114,11 +106,6 @@
 		}
 	};
 
-	/* ---- Volume ---- */
-	volume.oninput = () => {
-		audio_quran.volume = volume.value;
-		localStorage.setItem("volume", volume.value);
-	};
 
 	/* ---- Auto next Surah ---- */
 	audio_quran.onended = () => {
