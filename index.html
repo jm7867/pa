@@ -5,7 +5,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!--	<link href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap&subset=latin-ext" rel="stylesheet" />-->
-	<link rel="stylesheet" href="css/main.css" />
+
 	<title>Prayer Times App</title>
 	<style>
 		body {
@@ -299,6 +299,24 @@
 			font-size: 250px;
 		}
 
+		.wrapper {
+			width: 90%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			/*  min-height: 100vh;*/
+			background-size: cover;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			margin: 10px;
+			position: relative;
+			left: 20px;
+
+
+
+		}
+
 		@media (max-width: 600px) {
 			body {
 				font-size: 16px;
@@ -309,6 +327,61 @@
 			}
 
 
+		}
+
+
+
+		.controls {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+			margin-bottom: 12px;
+		}
+
+		.wrapper button {
+			width: 52px;
+			height: 52px;
+			border: none;
+			border-radius: 50%;
+			background: #ff6b6b;
+			color: white;
+			font-size: 18px;
+			cursor: pointer;
+			transition: 0.2s;
+		}
+
+		.player button:hover {
+			background: #ff8787;
+		}
+
+		.slider-row {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin: 10px 0;
+		}
+
+		input[type="range"] {
+			flex: 1;
+			appearance: none;
+			height: 6px;
+			border-radius: 6px;
+			background: #444;
+			cursor: pointer;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			appearance: none;
+			width: 14px;
+			height: 14px;
+			background: #ff6b6b;
+			border-radius: 50%;
+		}
+
+		.track-label {
+			text-align: center;
+			font-size: 13px;
+			color: #ccc;
 		}
 
 	</style>
@@ -365,314 +438,291 @@
 					<div class="calendar" id="calendar"></div>
 					<br>
 					<div class="wrapper" id="app">
-						<div class="player">
-							<div class="player__top">
+						<audio id="audio_quran"></audio>
 
-								<div class="player-controls">
-
-
-
-									<!-- Previous Track -->
-									<div class="player-controls__item" @click="prevTrack">
-										⏮️
-									</div>
-									<!-- Play/Pause -->
-									<div class="player-controls__item -xl js-play" @click="play">
-										{{ isTimerPlaying ? '⏸️' : '▶️' }}
-									</div>
-
-									<!-- Next Track -->
-									<div class="player-controls__item" @click="nextTrack">
-										⏭️
-									</div>
-
-								</div>
-							</div>
-
-							<div class="progress" ref="progress">
-								<div class="progress__top">
-									<div class="album-info" v-if="currentTrack">
-										<span class="album-info__name">{{ currentTrack.artist }}</span> |
-										<span class="album-info__track">{{ currentTrack.name }}</span> |
-										<span class="progress__duration">{{ duration }}</span>
-									</div>
-									<div class="progress__bar" @click="clickProgress">
-										<div class="progress__current" :style="{ width : barWidth }"></div>
-									</div>
-									<div class="progress__time">{{ currentTime }}</div>
-								</div>
-								<div v-cloak></div>
-							</div>
-
+						<div class="controls">
+							<button id="prev">⏮</button>
+							<button id="play">▶</button>
+							<button id="next">⏭</button>
 						</div>
 
+						<div class="slider-row">
+							<input type="range" id="progress" min="0" max="100" value="0">
+						</div>
 
+						<div class="slider-row">
+							<span>🔊</span>
+							<input type="range" id="volume" min="0" max="1" step="0.01">
+						</div>
+
+						<p class="track-label">Surah <span id="surah-name">Al-Fatiha</span> | Mishari Al-afasi </p>
 					</div>
 				</div>
 			</div>
-
-
-
-
-
-
 		</div>
 
-		<!-- audio element: update src to your azan file name -->
-		<audio id="azan-audio" src="azan.mp3" preload="auto"></audio>
 
-		<script>
-			/* Globals */
-			let userCoords = null;
-			let todayPrayerTimes = []; // { key, name, time (Date), timeStr24 }
-			let azanPlayedFor = null; // key of prayer already played
-			let isMuted = false;
-			let selectedDateGlobal = new Date();
-			const audio = document.getElementById('azan-audio');
+
+
+
+
+	</div>
+
+	<!-- audio element: update src to your azan file name -->
+	<audio id="azan-audio" src="azan.mp3" preload="auto"></audio>
+
+	<script>
+		/* Globals */
+		let userCoords = null;
+		let todayPrayerTimes = []; // { key, name, time (Date), timeStr24 }
+		let azanPlayedFor = null; // key of prayer already played
+		let isMuted = false;
+		let selectedDateGlobal = new Date();
+		const audio = document.getElementById('azan-audio');
+		audio.muted = isMuted;
+
+		// Unlock audio on first user click
+		document.addEventListener('click', async () => {
+			try {
+				await audio.play();
+				audio.pause();
+				audio.currentTime = 0;
+			} catch (e) {
+				console.warn('Audio unlock failed', e);
+			}
+		});
+
+
+		/* DOM helpers */
+		const $ = id => document.getElementById(id);
+
+		/* Digital clock */
+		function updateDigitalClock() {
+			const now = new Date();
+			let hours = now.getHours();
+			const minutes = now.getMinutes();
+			const seconds = now.getSeconds();
+			const ampm = hours >= 12 ? 'PM' : 'AM';
+			hours = hours % 12 || 12;
+			const timeStr = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+			$('digital-clock').innerHTML = `${timeStr}<br><span style="font-size:40px">${ampm}</span>`;
+		}
+		setInterval(updateDigitalClock, 1000);
+		updateDigitalClock();
+
+		/* Toggle mute/unmute: attempt to unlock audio on unmute (user interaction) */
+		$('mute-btn').addEventListener('click', async () => {
+			isMuted = !isMuted;
 			audio.muted = isMuted;
-
-			// Unlock audio on first user click
-			document.addEventListener('click', async () => {
+			$('mute-btn').textContent = isMuted ? '🔇' : '🔊';
+			if (!isMuted) {
 				try {
 					await audio.play();
 					audio.pause();
 					audio.currentTime = 0;
 				} catch (e) {
-					console.warn('Audio unlock failed', e);
+					/* won't break if autoplay blocked */
 				}
-			});
+			}
+		});
+
+		/* Refresh button */
+		$('refresh-btn').addEventListener('click', () => {
+			if (userCoords) {
+				fetchPrayerTimes(selectedDateGlobal);
+				fetchWeather(userCoords.latitude, userCoords.longitude);
+				location.reload();
+			}
+		});
+
+		/* Format time to 12h (HH:MM AM/PM), accepts "HH:MM" or "HH:MM:SS" */
+		function formatTime12h(timeStr) {
+			const parts = timeStr.split(':').map(Number);
+			let h = parts[0],
+				m = parts[1] ?? 0;
+			const ampm = h >= 12 ? 'PM' : 'AM';
+			h = h % 12 || 12;
+			return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+		}
+
+		/* Utility to parse time string "HH:MM[:SS]" into Date on given date */
+		function getTimeObj(timeStr, date = selectedDateGlobal) {
+			const [h, m, s = '0'] = timeStr.split(':').map(Number);
+			const t = new Date(date);
+			t.setHours(Number(h), Number(m), Number(s || 0), 0);
+			return t;
+		}
+
+		async function fetchWeather(lat, lon) {
+			try {
+				const url =
+					`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&temperature_unit=fahrenheit`;
+				const res = await fetch(url);
+				const data = await res.json();
+
+				$('weather-temp').textContent = `🌡 ${data.current.temperature_2m}°F`;
+				$('weather-wind').textContent = `💨 ${data.current.wind_speed_10m} km/h`;
+			} catch {
+				$('weather-temp').textContent = '--';
+				$('weather-wind').textContent = '--';
+			}
+		}
 
 
-			/* DOM helpers */
-			const $ = id => document.getElementById(id);
+		/* Main: fetch prayer times from Aladhan & render */
+		async function fetchPrayerTimes(selectedDate = new Date()) {
 
-			/* Digital clock */
-			function updateDigitalClock() {
+			if (!navigator.onLine) {
+				console.warn('Offline – skipping prayer time fetch');
+				$('current-prayer').textContent = 'Offline';
+				return;
+			}
+
+			if (!userCoords) return;
+			if (!userCoords) return;
+			selectedDateGlobal = selectedDate;
+			// Reset todayPrayerTimes
+			todayPrayerTimes = [];
+			azanPlayedFor = null; // reset for new day/load
+
+			const lat = userCoords.latitude;
+			const lon = userCoords.longitude;
+			const method = 2; // you can expose this
+			const day = selectedDate.getDate();
+			const month = selectedDate.getMonth() + 1;
+			const year = selectedDate.getFullYear();
+
+			const url = `https://api.aladhan.com/v1/calendar?latitude=${lat}&longitude=${lon}&method=${method}&month=${month}&year=${year}&school=1`;
+
+			try {
+				const res = await fetch(url);
+				const json = await res.json();
+				if (!json || json.code !== 200 || !json.data) throw new Error('Aladhan API error');
+				const today = json.data[day - 1];
+				const timings = today.timings;
+				const hijri = today.date.hijri;
+
+				// Format Gregorian date nicely
+				const dateObj = new Date(selectedDate);
+				const options = {
+					weekday: 'short',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric'
+				};
+
+				const formattedDate = dateObj.toLocaleDateString('en-US', {
+					weekday: 'short',
+					month: 'short',
+					day: '2-digit',
+					year: 'numeric'
+				}).replace(',', '');
+
+
+				// Example output: Saturday, August 16, 2025
+				$('gregorian-date').textContent = formattedDate;
+
+				// Hijri (from API)
+				$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
+
+
+				$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
+
+				// prayer order (Ishraq derived)
+				const prayerOrder = [{
+						name: "Imsak 🌙",
+						key: "Imsak"
+					},
+					{
+						name: "Fajr ✨",
+						key: "Fajr"
+					},
+					{
+						name: "Sunrise 🌅",
+						key: "Sunrise"
+					},
+					{
+						name: "Ishraq 🌄",
+						key: "Ishraq",
+						derived: true,
+						afterMinutes: 22
+					},
+					{
+						name: "Dhuhr ☀️",
+						key: "Dhuhr"
+					},
+					{
+						name: "Asr ☁️",
+						key: "Asr"
+					},
+					{
+						name: "Maghrib 🌇",
+						key: "Maghrib"
+					},
+					{
+						name: "Isha’a 🌙",
+						key: "Isha"
+					}
+				];
+
+				const prayerList = $('prayer-list');
+				prayerList.innerHTML = '';
+
 				const now = new Date();
-				let hours = now.getHours();
-				const minutes = now.getMinutes();
-				const seconds = now.getSeconds();
-				const ampm = hours >= 12 ? 'PM' : 'AM';
-				hours = hours % 12 || 12;
-				const timeStr = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-				$('digital-clock').innerHTML = `${timeStr}<br><span style="font-size:40px">${ampm}</span>`;
-			}
-			setInterval(updateDigitalClock, 1000);
-			updateDigitalClock();
+				const nowTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+					now.getHours(), now.getMinutes(), now.getSeconds());
 
-			/* Toggle mute/unmute: attempt to unlock audio on unmute (user interaction) */
-			$('mute-btn').addEventListener('click', async () => {
-				isMuted = !isMuted;
-				audio.muted = isMuted;
-				$('mute-btn').textContent = isMuted ? '🔇' : '🔊';
-				if (!isMuted) {
-					try {
-						await audio.play();
-						audio.pause();
-						audio.currentTime = 0;
-					} catch (e) {
-						/* won't break if autoplay blocked */
+				todayPrayerTimes = []; // reset
+
+				// Build prayer times array
+				for (const prayer of prayerOrder) {
+					let timeStr24;
+					if (prayer.derived && prayer.key === 'Ishraq') {
+						const sunriseRaw = timings['Sunrise'].split(' ')[0]; // HH:MM
+						const [sh, sm] = sunriseRaw.split(':').map(Number);
+						const total = sh * 60 + sm + (prayer.afterMinutes || 15);
+						const ih = Math.floor(total / 60) % 24;
+						const im = total % 60;
+						timeStr24 = `${String(ih).padStart(2,'0')}:${String(im).padStart(2,'0')}:00`;
+					} else {
+						if (!timings[prayer.key]) continue;
+						timeStr24 = timings[prayer.key].split(' ')[0];
+						if (timeStr24.length === 5) timeStr24 += ':00';
 					}
-				}
-			});
 
-			/* Refresh button */
-			$('refresh-btn').addEventListener('click', () => {
-				if (userCoords) {
-					fetchPrayerTimes(selectedDateGlobal);
-					fetchWeather(userCoords.latitude, userCoords.longitude);
-					location.reload();
-				}
-			});
-
-			/* Format time to 12h (HH:MM AM/PM), accepts "HH:MM" or "HH:MM:SS" */
-			function formatTime12h(timeStr) {
-				const parts = timeStr.split(':').map(Number);
-				let h = parts[0],
-					m = parts[1] ?? 0;
-				const ampm = h >= 12 ? 'PM' : 'AM';
-				h = h % 12 || 12;
-				return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
-			}
-
-			/* Utility to parse time string "HH:MM[:SS]" into Date on given date */
-			function getTimeObj(timeStr, date = selectedDateGlobal) {
-				const [h, m, s = '0'] = timeStr.split(':').map(Number);
-				const t = new Date(date);
-				t.setHours(Number(h), Number(m), Number(s || 0), 0);
-				return t;
-			}
-
-			async function fetchWeather(lat, lon) {
-				try {
-					const url =
-						`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&temperature_unit=fahrenheit`;
-					const res = await fetch(url);
-					const data = await res.json();
-
-					$('weather-temp').textContent = `🌡 ${data.current.temperature_2m}°F`;
-					$('weather-wind').textContent = `💨 ${data.current.wind_speed_10m} km/h`;
-				} catch {
-					$('weather-temp').textContent = '--';
-					$('weather-wind').textContent = '--';
-				}
-			}
-
-
-			/* Main: fetch prayer times from Aladhan & render */
-			async function fetchPrayerTimes(selectedDate = new Date()) {
-
-				if (!navigator.onLine) {
-					console.warn('Offline – skipping prayer time fetch');
-					$('current-prayer').textContent = 'Offline';
-					return;
+					const prayerTime = getTimeObj(timeStr24, selectedDate);
+					todayPrayerTimes.push({
+						key: prayer.key,
+						name: prayer.name,
+						time: prayerTime,
+						timeStr24
+					});
 				}
 
-				if (!userCoords) return;
-				if (!userCoords) return;
-				selectedDateGlobal = selectedDate;
-				// Reset todayPrayerTimes
-				todayPrayerTimes = [];
-				azanPlayedFor = null; // reset for new day/load
+				// 🔹 Render list with NOW & FINISHED logic
+				let currentPrayer = null;
 
-				const lat = userCoords.latitude;
-				const lon = userCoords.longitude;
-				const method = 2; // you can expose this
-				const day = selectedDate.getDate();
-				const month = selectedDate.getMonth() + 1;
-				const year = selectedDate.getFullYear();
+				for (let i = 0; i < todayPrayerTimes.length; i++) {
+					const prayer = todayPrayerTimes[i];
+					const nextPrayer = todayPrayerTimes[i + 1]; // look ahead
 
-				const url = `https://api.aladhan.com/v1/calendar?latitude=${lat}&longitude=${lon}&method=${method}&month=${month}&year=${year}&school=1`;
+					let isNow = false;
+					let isFinished = false;
 
-				try {
-					const res = await fetch(url);
-					const json = await res.json();
-					if (!json || json.code !== 200 || !json.data) throw new Error('Aladhan API error');
-					const today = json.data[day - 1];
-					const timings = today.timings;
-					const hijri = today.date.hijri;
-
-					// Format Gregorian date nicely
-					const dateObj = new Date(selectedDate);
-					const options = {
-						weekday: 'short',
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					};
-
-					const formattedDate = dateObj.toLocaleDateString('en-US', {
-						weekday: 'short',
-						month: 'short',
-						day: '2-digit',
-						year: 'numeric'
-					}).replace(',', '');
-
-
-					// Example output: Saturday, August 16, 2025
-					$('gregorian-date').textContent = formattedDate;
-
-					// Hijri (from API)
-					$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
-
-
-					$('hijri-date').textContent = `${hijri.day} ${hijri.month.en} ${hijri.year}`;
-
-					// prayer order (Ishraq derived)
-					const prayerOrder = [{
-							name: "Imsak 🌙",
-							key: "Imsak"
-						},
-						{
-							name: "Fajr ✨",
-							key: "Fajr"
-						},
-						{
-							name: "Sunrise 🌅",
-							key: "Sunrise"
-						},
-						{
-							name: "Ishraq 🌄",
-							key: "Ishraq",
-							derived: true,
-							afterMinutes: 22
-						},
-						{
-							name: "Dhuhr ☀️",
-							key: "Dhuhr"
-						},
-						{
-							name: "Asr ☁️",
-							key: "Asr"
-						},
-						{
-							name: "Maghrib 🌇",
-							key: "Maghrib"
-						},
-						{
-							name: "Isha’a 🌙",
-							key: "Isha"
-						}
-					];
-
-					const prayerList = $('prayer-list');
-					prayerList.innerHTML = '';
-
-					const now = new Date();
-					const nowTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-						now.getHours(), now.getMinutes(), now.getSeconds());
-
-					todayPrayerTimes = []; // reset
-
-					// Build prayer times array
-					for (const prayer of prayerOrder) {
-						let timeStr24;
-						if (prayer.derived && prayer.key === 'Ishraq') {
-							const sunriseRaw = timings['Sunrise'].split(' ')[0]; // HH:MM
-							const [sh, sm] = sunriseRaw.split(':').map(Number);
-							const total = sh * 60 + sm + (prayer.afterMinutes || 15);
-							const ih = Math.floor(total / 60) % 24;
-							const im = total % 60;
-							timeStr24 = `${String(ih).padStart(2,'0')}:${String(im).padStart(2,'0')}:00`;
+					if (nowTime >= prayer.time) {
+						if (!nextPrayer || nowTime < nextPrayer.time) {
+							// Between this and next prayer → NOW
+							isNow = true;
+							currentPrayer = prayer;
 						} else {
-							if (!timings[prayer.key]) continue;
-							timeStr24 = timings[prayer.key].split(' ')[0];
-							if (timeStr24.length === 5) timeStr24 += ':00';
+							// Past this prayer and next one already started → FINISHED
+							isFinished = true;
 						}
-
-						const prayerTime = getTimeObj(timeStr24, selectedDate);
-						todayPrayerTimes.push({
-							key: prayer.key,
-							name: prayer.name,
-							time: prayerTime,
-							timeStr24
-						});
 					}
 
-					// 🔹 Render list with NOW & FINISHED logic
-					let currentPrayer = null;
-
-					for (let i = 0; i < todayPrayerTimes.length; i++) {
-						const prayer = todayPrayerTimes[i];
-						const nextPrayer = todayPrayerTimes[i + 1]; // look ahead
-
-						let isNow = false;
-						let isFinished = false;
-
-						if (nowTime >= prayer.time) {
-							if (!nextPrayer || nowTime < nextPrayer.time) {
-								// Between this and next prayer → NOW
-								isNow = true;
-								currentPrayer = prayer;
-							} else {
-								// Past this prayer and next one already started → FINISHED
-								isFinished = true;
-							}
-						}
-
-						const item = document.createElement('div');
-						item.className = 'prayer-item';
-						item.innerHTML = `
+					const item = document.createElement('div');
+					item.className = 'prayer-item';
+					item.innerHTML = `
         <div>
           ${prayer.name} 
           ${isNow ? '<br><span class="now-tag">Now</span>' : ''}
@@ -681,192 +731,191 @@
         <div>${formatTime12h(prayer.timeStr24)}</div>
       `;
 
-						prayerList.appendChild(item);
+					prayerList.appendChild(item);
+				}
+
+				// 🔹 Update current-prayer display
+				$('current-prayer').innerHTML = currentPrayer ?
+					`${currentPrayer.name}<br><span style="font-size:0.9em">${formatTime12h(currentPrayer.timeStr24)}</span>` :
+					'N/A';
+
+				// 🔹 After rendering prayer list and current prayer
+				let nextPrayer = todayPrayerTimes.find(p => p.time > nowTime);
+
+				const nextPrayerDisplay = $('next-prayer'); // <div id="next-prayer"></div>
+				const countdownEl = $('next-prayer-countdown'); // <div id="next-prayer-countdown"></div>
+
+				if (nextPrayer) {
+					const now = new Date();
+					let diff = nextPrayer.time - now; // ms
+					if (diff < 0) diff = 0;
+
+					const hours = Math.floor(diff / (1000 * 60 * 60));
+					const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+					const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+					const plainName = nextPrayer.name.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
+
+					if (countdownEl) {
+						countdownEl.textContent = `${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 					}
-
-					// 🔹 Update current-prayer display
-					$('current-prayer').innerHTML = currentPrayer ?
-						`${currentPrayer.name}<br><span style="font-size:0.9em">${formatTime12h(currentPrayer.timeStr24)}</span>` :
-						'N/A';
-
-					// 🔹 After rendering prayer list and current prayer
-					let nextPrayer = todayPrayerTimes.find(p => p.time > nowTime);
-
-					const nextPrayerDisplay = $('next-prayer'); // <div id="next-prayer"></div>
-					const countdownEl = $('next-prayer-countdown'); // <div id="next-prayer-countdown"></div>
-
-					if (nextPrayer) {
-						const now = new Date();
-						let diff = nextPrayer.time - now; // ms
-						if (diff < 0) diff = 0;
-
-						const hours = Math.floor(diff / (1000 * 60 * 60));
-						const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-						const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-						const plainName = nextPrayer.name.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
-
-						if (countdownEl) {
-							countdownEl.textContent = `${plainName} in ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-						}
-					} else {
-						if (nextPrayerDisplay) {
-							nextPrayerDisplay.textContent = 'No more prayers today';
-						}
-						if (countdownEl) {
-							countdownEl.textContent = 'No more prayers today';
-						}
+				} else {
+					if (nextPrayerDisplay) {
+						nextPrayerDisplay.textContent = 'No more prayers today';
 					}
-
-
-
-
-
-				} catch (err) {
-					console.error('fetchPrayerTimes error', err);
+					if (countdownEl) {
+						countdownEl.textContent = 'No more prayers today';
+					}
 				}
-			}
-			/* Calendar UI */
-			function showWeek() {
-				switchTab('Bi-Weekly');
-				const calendar = $('calendar');
-				document.getElementById('app').style.display = 'block';
-				calendar.innerHTML = '';
-				const now = new Date();
-				const start = new Date(now);
-				start.setDate(now.getDate() - now.getDay());
-				for (let i = 0; i < 14; i++) {
-					const date = new Date(start);
-					date.setDate(start.getDate() + i);
-					const isToday = date.toDateString() === (new Date()).toDateString();
-					const el = document.createElement('div');
-					el.className = `calendar-day ${isToday?'active':''}`;
-					el.innerHTML = `${date.toLocaleDateString('en-US',{weekday:'short'})}<br>${date.getDate()}`;
-					el.addEventListener('click', () => {
-						fetchPrayerTimes(date);
-						highlightActiveDay(el);
-					});
-					calendar.appendChild(el);
-				}
-			}
 
-			function showMonth() {
-				switchTab('Month');
-				const calendar = $('calendar');
-				document.getElementById('app').style.display = 'none';
-				calendar.innerHTML = '';
-				const now = new Date();
-				const year = now.getFullYear(),
-					month = now.getMonth();
-				const daysInMonth = new Date(year, month + 1, 0).getDate();
-				const firstDay = new Date(year, month, 1).getDay();
-				for (let i = 0; i < firstDay; i++) {
-					const empty = document.createElement('div');
-					empty.className = 'calendar-day';
-					empty.innerHTML = '&nbsp;';
-					calendar.appendChild(empty);
-				}
-				for (let d = 1; d <= daysInMonth; d++) {
-					const date = new Date(year, month, d);
-					const isToday = d === now.getDate();
-					const el = document.createElement('div');
-					el.className = `calendar-day ${isToday?'active':''}`;
-					el.innerHTML = `${date.toLocaleDateString('en-US',{weekday:'short'})}<br>${d}`;
-					el.addEventListener('click', () => {
-						fetchPrayerTimes(date);
-						highlightActiveDay(el);
-					});
-					calendar.appendChild(el);
-				}
-			}
 
-			function highlightActiveDay(sel) {
-				document.querySelectorAll('.calendar-day').forEach(e => e.classList.remove('active'));
-				sel.classList.add('active');
-			}
 
-			function switchTab(tab) {
-				document.querySelectorAll('.tabs button').forEach(btn => {
-					btn.classList.remove('active');
-					if (btn.textContent === tab) btn.classList.add('active');
+
+
+			} catch (err) {
+				console.error('fetchPrayerTimes error', err);
+			}
+		}
+		/* Calendar UI */
+		function showWeek() {
+			switchTab('Bi-Weekly');
+			const calendar = $('calendar');
+			document.getElementById('app').style.display = 'block';
+			calendar.innerHTML = '';
+			const now = new Date();
+			const start = new Date(now);
+			start.setDate(now.getDate() - now.getDay());
+			for (let i = 0; i < 14; i++) {
+				const date = new Date(start);
+				date.setDate(start.getDate() + i);
+				const isToday = date.toDateString() === (new Date()).toDateString();
+				const el = document.createElement('div');
+				el.className = `calendar-day ${isToday?'active':''}`;
+				el.innerHTML = `${date.toLocaleDateString('en-US',{weekday:'short'})}<br>${date.getDate()}`;
+				el.addEventListener('click', () => {
+					fetchPrayerTimes(date);
+					highlightActiveDay(el);
 				});
+				calendar.appendChild(el);
 			}
+		}
 
-			/* Interval: check every second to play azan (once per prayer) */
-			setInterval(() => {
-				if (!todayPrayerTimes.length || isMuted) return;
+		function showMonth() {
+			switchTab('Month');
+			const calendar = $('calendar');
+			document.getElementById('app').style.display = 'none';
+			calendar.innerHTML = '';
+			const now = new Date();
+			const year = now.getFullYear(),
+				month = now.getMonth();
+			const daysInMonth = new Date(year, month + 1, 0).getDate();
+			const firstDay = new Date(year, month, 1).getDay();
+			for (let i = 0; i < firstDay; i++) {
+				const empty = document.createElement('div');
+				empty.className = 'calendar-day';
+				empty.innerHTML = '&nbsp;';
+				calendar.appendChild(empty);
+			}
+			for (let d = 1; d <= daysInMonth; d++) {
+				const date = new Date(year, month, d);
+				const isToday = d === now.getDate();
+				const el = document.createElement('div');
+				el.className = `calendar-day ${isToday?'active':''}`;
+				el.innerHTML = `${date.toLocaleDateString('en-US',{weekday:'short'})}<br>${d}`;
+				el.addEventListener('click', () => {
+					fetchPrayerTimes(date);
+					highlightActiveDay(el);
+				});
+				calendar.appendChild(el);
+			}
+		}
 
-				const now = new Date();
+		function highlightActiveDay(sel) {
+			document.querySelectorAll('.calendar-day').forEach(e => e.classList.remove('active'));
+			sel.classList.add('active');
+		}
 
-				for (const p of todayPrayerTimes) {
-					const diff = now - p.time; // milliseconds
-
-					// Trigger Azan if it's the exact prayer time within the first 59 seconds
-					if (diff >= 0 && diff < 19000 && azanPlayedFor !== p.key) {
-						audio.currentTime = 0;
-						audio.play().catch(err => {
-							console.warn('Audio play blocked. User interaction needed:', err);
-							// Optionally show a toast/button to user to enable audio
-						});
-						azanPlayedFor = p.key;
-					}
-				}
-			}, 1000);
-
-
-			/* Geolocation and Boot */
-			navigator.geolocation.getCurrentPosition(async pos => {
-				userCoords = pos.coords;
-				// show textual location (reverse geocode)
-				try {
-					const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userCoords.latitude}&lon=${userCoords.longitude}`);
-					const j = await r.json();
-					const place = j.address && (j.address.city || j.address.town || j.address.village || j.address.state) || '';
-					$('location').textContent = `\u00A0\u00A0\u00A0\u00A0${place || 'Your Location'}`;
-				} catch (e) {
-					$('location').textContent = '\u00A0\u00A0\u00A0\u00A0Location Unavailable';
-				}
-				// fetch weather and prayers
-				fetchPrayerTimes(new Date());
-				fetchWeather(pos.coords.latitude, pos.coords.longitude);
-
-			}, err => {
-				console.error('Geolocation failed', err);
-				$('location').textContent = ' Location denied';
+		function switchTab(tab) {
+			document.querySelectorAll('.tabs button').forEach(btn => {
+				btn.classList.remove('active');
+				if (btn.textContent === tab) btn.classList.add('active');
 			});
+		}
 
-			/* Unlock audio if user interacts with page (helps with autoplay policies) */
-			document.addEventListener('click', async () => {
-				try {
-					await audio.play();
-					audio.pause();
+		/* Interval: check every second to play azan (once per prayer) */
+		setInterval(() => {
+			if (!todayPrayerTimes.length || isMuted) return;
+
+			const now = new Date();
+
+			for (const p of todayPrayerTimes) {
+				const diff = now - p.time; // milliseconds
+
+				// Trigger Azan if it's the exact prayer time within the first 59 seconds
+				if (diff >= 0 && diff < 19000 && azanPlayedFor !== p.key) {
 					audio.currentTime = 0;
-				} catch (e) {}
-			});
-
-			/* initial calendar */
-			showWeek();
-
-			// Auto-refresh data every 60 seconds
-			setInterval(() => {
-				const now = new Date();
-				if (userCoords) {
-					fetchPrayerTimes(now);
+					audio.play().catch(err => {
+						console.warn('Audio play blocked. User interaction needed:', err);
+						// Optionally show a toast/button to user to enable audio
+					});
+					azanPlayedFor = p.key;
 				}
-			}, 300000);
+			}
+		}, 1000);
 
-			// Auto-refresh data every 60 seconds
-			setInterval(() => {
-				const now = new Date();
-				if (userCoords) {
-					fetchWeather(userCoords.latitude, userCoords.longitude);
-				}
-			}, 600000);
 
-		</script>
+		/* Geolocation and Boot */
+		navigator.geolocation.getCurrentPosition(async pos => {
+			userCoords = pos.coords;
+			// show textual location (reverse geocode)
+			try {
+				const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userCoords.latitude}&lon=${userCoords.longitude}`);
+				const j = await r.json();
+				const place = j.address && (j.address.city || j.address.town || j.address.village || j.address.state) || '';
+				$('location').textContent = `\u00A0\u00A0\u00A0\u00A0${place || 'Your Location'}`;
+			} catch (e) {
+				$('location').textContent = '\u00A0\u00A0\u00A0\u00A0Location Unavailable';
+			}
+			// fetch weather and prayers
+			fetchPrayerTimes(new Date());
+			fetchWeather(pos.coords.latitude, pos.coords.longitude);
 
-		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
-		<script src="./scripts/script.js"></script>
+		}, err => {
+			console.error('Geolocation failed', err);
+			$('location').textContent = ' Location denied';
+		});
+
+		/* Unlock audio if user interacts with page (helps with autoplay policies) */
+		document.addEventListener('click', async () => {
+			try {
+				await audio.play();
+				audio.pause();
+				audio.currentTime = 0;
+			} catch (e) {}
+		});
+
+		/* initial calendar */
+		showWeek();
+
+		// Auto-refresh data every 60 seconds
+		setInterval(() => {
+			const now = new Date();
+			if (userCoords) {
+				fetchPrayerTimes(now);
+			}
+		}, 300000);
+
+		// Auto-refresh data every 60 seconds
+		setInterval(() => {
+			const now = new Date();
+			if (userCoords) {
+				fetchWeather(userCoords.latitude, userCoords.longitude);
+			}
+		}, 600000);
+
+	</script>
+
+	<script type="text/javascript" src="scripts/quran.js"></script>
 	</div>
 </body>
 
