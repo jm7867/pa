@@ -305,21 +305,32 @@
 	<div class="container">
 
 		<h4 style="text-align: center;  font-family: " Segoe UI", Tahoma, Arial, "Noto Naskh Arabic" , "Amiri" , sans-serif; ">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</h4>
+			<hr>
 
-		<div class=" card">
-			<div class="card-section" style="text-align: left;">
-				<strong>Now</strong>
-				<h2 id="current-prayer">--</h2>
-			</div>
-			<div class="card-section">
-				<p id="digital-clock"></p>
-				<div class="date-box">
-					<span id="gregorian-date">Today</span>
-					<hr>
-					<span id="hijri-date">Hijri Date</span>
-				</div>
+					<div class=" location">
+			<span id="location">📍 Getting location...</span>
+			<button id="change-location" style="background:#083e34;color:white;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">
+				Reset
+			</button>
+	</div>
 
+	<div class=" card">
+		<div class="card-section" style="text-align: left;">
+			<strong>Now</strong>
+			<h2 id="current-prayer">--</h2>
+		</div>
+		<div class="card-section">
+			<p id="digital-clock"></p>
+			<div class="date-box">
+				<span id="gregorian-date">Today</span>
+				<hr>
+				<span id="hijri-date">Hijri Date</span>
 			</div>
+
+
+
+		</div>
+
 	</div>
 
 	<button id="open-settings" class="prayer-btn">⚙️</button>
@@ -328,13 +339,7 @@
 
 		<div class="prayer-content-settings">
 			<span class="close-btn" id="close-settings">&times;</span>
-			<div class="location">
-				<span id="location">📍 Getting location...</span>
-				<button id="change-location" style="background:#083e34;color:white;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;">
-					Reset
-				</button>
-			</div>
-			<hr>
+
 
 			<!-- City / country / method settings -->
 			<div class="location-settings">
@@ -365,7 +370,7 @@
 	<div class="prayer-list" id="prayer-list"></div>
 
 
-	<hr>
+
 	<div class="progress-section">
 		<div class="tabs">
 			<button class="active" onclick="showWeek()">Week</button>
@@ -374,6 +379,7 @@
 		<div class="cal_main">
 			<div class="calendar" id="calendar"></div>
 			<br>
+
 			<div class="wrapper" id="app" style="padding-left:0px;">
 				<div class="player">
 					<div class="player__top">
