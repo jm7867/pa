@@ -309,7 +309,7 @@
 			background-color: black;
 			padding: 10px;
 			width: 200px;
-			margin-left: 10px;
+/*			margin-left: 10px;*/
 			color: gainsboro;
 			font-weight: bold;
 			border-radius: 10px;
@@ -551,6 +551,10 @@
 			}
 		}
 
+		.ampm {
+			font-size: 40px;
+		}
+
 		@media (max-width: 580px) {
 			#current-prayer {
 				font-size: 22px;
@@ -565,7 +569,7 @@
 			}
 
 			#gregorian-date {
-				font-size: 20px;
+				font-size: 13px;
 			}
 
 			.secondary {
@@ -575,6 +579,11 @@
 			.secondary2 {
 				top: 35px;
 				right: 30px;
+			}
+
+
+			.ampm {
+				font-size: 20px;
 			}
 
 
@@ -688,7 +697,7 @@
 			const ampm = hours >= 12 ? 'P' : 'A';
 			hours = hours % 12 || 12;
 			const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-			$('digital-clock').innerHTML = `${timeStr} <span style="font-size:40px">${ampm}</span>`;
+			$('digital-clock').innerHTML = `${timeStr} <span class="ampm">${ampm}</span>`;
 		}
 		setInterval(updateDigitalClock, 1000);
 		updateDigitalClock();
