@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ─────────────────────────────────────────────
 #  generate-manifest.sh
@@ -10,6 +10,8 @@
 #    ./generate-manifest.sh
 # ─────────────────────────────────────────────
 
+set -euo pipefail
+
 FOLDER="nashed"
 OUTPUT="$FOLDER/manifest.json"
 
@@ -20,13 +22,18 @@ if [ ! -d "$FOLDER" ]; then
   exit 1
 fi
 
-# ── Collect audio files (mp3, m4a, ogg, wav) sorted naturally ──
-mapfile -t FILES < <(
+# ── Collect audio files safely (null-terminated to handle spaces & special chars) ──
+mapfile -d '' -t FILES < <(
   find "$FOLDER" -maxdepth 1 -type f \
     \( -iname "*.mp3" -o -iname "*.m4a" -o -iname "*.ogg" -o -iname "*.wav" \) \
-  | sort -V \
-  | xargs -I{} basename {}
+    -print0 \
+  | sort -z -V
 )
+
+# ── Remove folder prefix (keep only filename) ──
+for i in "${!FILES[@]}"; do
+  FILES[$i]="$(basename "${FILES[$i]}")"
+done
 
 # ── Check we found something ──
 if [ ${#FILES[@]} -eq 0 ]; then
@@ -35,29 +42,33 @@ if [ ${#FILES[@]} -eq 0 ]; then
   exit 1
 fi
 
-# ── Build JSON array ──
-echo "[" > "$OUTPUT"
+# ── Build JSON array safely ──
+{
+  echo "["
+  LAST_INDEX=$((${#FILES[@]} - 1))
 
-LAST=${#FILES[@]}
-for i in "${!FILES[@]}"; do
-  FILE="${FILES[$i]}"
-  # Escape any double-quotes in filename (edge case)
-  ESCAPED="${FILE//\"/\\\"}"
-  if [ $((i + 1)) -lt $LAST ]; then
-    echo "  \"$ESCAPED\"," >> "$OUTPUT"
-  else
-    echo "  \"$ESCAPED\""  >> "$OUTPUT"   # no trailing comma on last item
-  fi
-done
+  for i in "${!FILES[@]}"; do
+    FILE="${FILES[$i]}"
+    ESCAPED="${FILE//\"/\\\"}"
 
-echo "]" >> "$OUTPUT"
+    if [ "$i" -lt "$LAST_INDEX" ]; then
+      printf '  "%s",\n' "$ESCAPED"
+    else
+      printf '  "%s"\n' "$ESCAPED"
+    fi
+  done
+
+  echo "]"
+} > "$OUTPUT"
 
 # ── Summary ──
 echo ""
 echo "✅  manifest.json created → $OUTPUT"
 echo "    Found ${#FILES[@]} file(s):"
 echo ""
+
 for FILE in "${FILES[@]}"; do
   echo "    • $FILE"
 done
+
 echo ""
