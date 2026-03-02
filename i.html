@@ -466,6 +466,7 @@
 			flex: 1;
 		}
 
+		/*
 		.prayer-card {
 			background: var(--surface);
 			border: 1.5px solid var(--border);
@@ -474,6 +475,22 @@
 			display: flex;
 			flex-direction: column;
 			gap: 5px;
+			position: relative;
+			overflow: hidden;
+			cursor: default;
+			box-shadow: var(--shadow);
+			transition: transform 0.2s, box-shadow 0.2s;
+		}
+*/
+
+		.prayer-card {
+			background: var(--surface);
+			border: 1.5px solid var(--border);
+			border-radius: 18px;
+			padding: 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 0px;
 			position: relative;
 			overflow: hidden;
 			cursor: default;
@@ -585,7 +602,7 @@
 			position: absolute;
 			float: right;
 			right: 10px;
-			top: 10px;
+			top: 5x;
 		}
 
 		.now-pill::before {
@@ -613,7 +630,7 @@
 			position: absolute;
 			float: right;
 			right: 10px;
-			top: 10px;
+			top: 5px;
 		}
 
 		/* ══ QURAN PLAYER ══ */
