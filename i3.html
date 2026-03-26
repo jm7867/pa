@@ -1924,12 +1924,24 @@
 				} catch {}
 			}
 		});
+		//		$('refresh-btn').addEventListener('click', () => {
+		//			if (userCoords) {
+		//				fetchPrayers(selDate);
+		//				fetchWeather(userCoords.latitude, userCoords.longitude);
+		//			}
+		//		});
+
 		$('refresh-btn').addEventListener('click', () => {
 			if (userCoords) {
+				selDate = new Date(); // ← reset to today
+				azanPlayed = null; // ← clear azan tracker
+				showWeek(); // ← rebuild calendar to today
 				fetchPrayers(selDate);
 				fetchWeather(userCoords.latitude, userCoords.longitude);
 			}
 		});
+
+
 		$('fs-btn').addEventListener('click', () => {
 			if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
 			else document.exitFullscreen();
@@ -1961,9 +1973,31 @@
 		}, {
 			once: true
 		});
+		//		setInterval(() => {
+		//			if (userCoords) fetchPrayers(selDate);
+		//		}, 300000);
+
 		setInterval(() => {
 			if (userCoords) fetchPrayers(selDate);
 		}, 300000);
+
+		// ─── MIDNIGHT DATE CHANGE WATCHER ───
+		let _lastDate = new Date().toDateString();
+		setInterval(() => {
+			const today = new Date().toDateString();
+			if (today !== _lastDate) {
+				_lastDate = today;
+				selDate = new Date();
+				azanPlayed = null;
+				showWeek(); // rebuild calendar strip for new day
+				if (userCoords) {
+					fetchPrayers(selDate);
+					fetchWeather(userCoords.latitude, userCoords.longitude);
+				}
+			}
+		}, 10000); // checks every 10 seconds
+
+
 		setInterval(() => {
 			if (userCoords) fetchWeather(userCoords.latitude, userCoords.longitude);
 		}, 600000);
