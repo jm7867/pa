@@ -273,8 +273,15 @@
 		}
 
 		.brand-icon {
-			font-size: 26px;
+			font-size: 1px;
 			filter: drop-shadow(0 0 8px var(--glow));
+		}
+
+		.logo-img {
+			height: 30px;
+			width: 30px;
+			position: relative;
+			top: -6px;
 		}
 
 		.brand-text {
@@ -298,8 +305,10 @@
 			font-weight: bolder;
 			color: var(--acc3);
 			line-height: 1;
-			letter-spacing: -2px;
+			letter-spacing: 2px;
 			text-shadow: 0 0 40px var(--glow);
+			position: relative;
+			top: -10px;
 		}
 
 		.clock-secs {
@@ -364,7 +373,7 @@
 			background: linear-gradient(135deg, var(--acc-pale), transparent);
 			border: 1px solid var(--border2);
 			border-radius: 14px;
-			padding: 14px 16px;
+			padding: 15px;
 			margin-bottom: 12px;
 			position: relative;
 			overflow: hidden;
@@ -1343,7 +1352,7 @@
 		<!-- SIDEBAR -->
 		<div class="sidebar">
 			<div class="brand">
-				<span class="brand-icon">☽</span>
+				<span class="brand-icon"><img src="logo.gif" class="logo-img"> ☽</span>
 				<span class="brand-text">Local Prayer Times</span>
 			</div>
 			<div class="sb-clock">
@@ -1574,7 +1583,7 @@
 		let settings = {
 			theme: localStorage.getItem('s_theme') || 'midnight',
 			method: parseInt(localStorage.getItem('s_method') || '2'),
-			school: parseInt(localStorage.getItem('s_school') || '0'),
+			school: parseInt(localStorage.getItem('s_school') || '1'),
 			azanOn: localStorage.getItem('s_azan') !== 'off'
 		};
 		let pendingTheme = settings.theme;
@@ -1927,24 +1936,12 @@
 				} catch {}
 			}
 		});
-		//		$('refresh-btn').addEventListener('click', () => {
-		//			if (userCoords) {
-		//				fetchPrayers(selDate);
-		//				fetchWeather(userCoords.latitude, userCoords.longitude);
-		//			}
-		//		});
-
 		$('refresh-btn').addEventListener('click', () => {
 			if (userCoords) {
-				selDate = new Date(); // ← reset to today
-				azanPlayed = null; // ← clear azan tracker
-				showWeek(); // ← rebuild calendar to today
 				fetchPrayers(selDate);
 				fetchWeather(userCoords.latitude, userCoords.longitude);
 			}
 		});
-
-
 		$('fs-btn').addEventListener('click', () => {
 			if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
 			else document.exitFullscreen();
@@ -1976,37 +1973,15 @@
 		}, {
 			once: true
 		});
-		//		setInterval(() => {
-		//			if (userCoords) fetchPrayers(selDate);
-		//		}, 300000);
-
 		setInterval(() => {
 			if (userCoords) fetchPrayers(selDate);
-		}, 300000);
-
-		// ─── MIDNIGHT DATE CHANGE WATCHER ───
-		let _lastDate = new Date().toDateString();
-		setInterval(() => {
-			const today = new Date().toDateString();
-			if (today !== _lastDate) {
-				_lastDate = today;
-				selDate = new Date();
-				azanPlayed = null;
-				showWeek(); // rebuild calendar strip for new day
-				if (userCoords) {
-					fetchPrayers(selDate);
-					fetchWeather(userCoords.latitude, userCoords.longitude);
-				}
-			}
-		}, 10000); // checks every 10 seconds
-
-
+		}, 2300000);
 		setInterval(() => {
 			if (userCoords) fetchWeather(userCoords.latitude, userCoords.longitude);
 		}, 600000);
 		setInterval(() => {
 			if (todayPrayers.length) renderGrid();
-		}, 30000);
+		}, 230000);
 		showWeek();
 
 		function switchMediaTab(tab) {
