@@ -2145,6 +2145,28 @@
 		document.addEventListener('contextmenu', e => e.preventDefault());
 
 	</script>
+
+	<script>
+  function scheduleRefresh() {
+    const now = new Date();
+    const target = new Date();
+
+    target.setHours(0, 1, 0, 0);
+
+    if (now >= target) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    const timeUntilRefresh = target - now;
+
+    setTimeout(function() {
+      location.reload();
+      scheduleRefresh(); // schedule next one
+    }, timeUntilRefresh);
+  }
+
+  scheduleRefresh();
+</script>
 </body>
 
 </html>
