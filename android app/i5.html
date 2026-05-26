@@ -1734,6 +1734,8 @@
 	<audio id="waz-audio" preload="metadata"></audio>
 
 	<script>
+		const GITHUB = "https://raw.githubusercontent.com/jm7867/pa/master/";
+
 		(function() {
 			const c = document.getElementById('stars');
 			for (let i = 0; i < 90; i++) {
@@ -2167,7 +2169,7 @@
 				$('surah-name').textContent = surahs[i - 1];
 				$('p-status').textContent = 'Loading…';
 				$('q-progress').value = 0;
-				qa.src = `quran/${String(i).padStart(3,'0')}.mp3`;
+				qa.src = `${GITHUB}quran/${String(i).padStart(3,'0')}.mp3`;
 				qa.load();
 				localStorage.setItem('surahIndex', i);
 			}
@@ -2278,7 +2280,7 @@
 						const files = await res.json();
 						if (Array.isArray(files) && files.length) {
 							tracks = files.map(f => ({
-								file: `nashed/${f}`,
+								file: `${GITHUB}nashed/${f}`,
 								title: pretty(f)
 							}));
 							const saved = Number(localStorage.getItem('nashedIndex')) || 0;
@@ -2379,12 +2381,12 @@
 				$('waz-name').textContent = 'Loading…';
 				$('w-status').textContent = '…';
 				try {
-					const res = await fetch('waz/manifest.json');
+					const res = await fetch(`${GITHUB}waz/manifest.json`);
 					if (res.ok) {
 						const files = await res.json();
 						if (Array.isArray(files) && files.length) {
 							tracks = files.map(f => ({
-								file: `waz/${f}`,
+								file: `${GITHUB}waz/${f}`,
 								title: pretty(f)
 							}));
 							const saved = Number(localStorage.getItem('wazIndex')) || 0;
